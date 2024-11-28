@@ -1,0 +1,39 @@
+name: Convert JSON to SRS
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - rules.json  # 当 rules.json 文件更新时触发
+
+jobs:
+  convert-json:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: 检出仓库
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: 下载 SingBox 内核
+      - name: Download SingBox
+        run: |
+          curl -L -o sing-box.tar.gz https://github.com/SagerNet/sing-box/releases/download/v1.10.3/sing-box-1.10.3-linux-amd64.tar.gz
+          tar -xzf sing-box.tar.gz
+          chmod +x sing-box
+
+      # Step 3: 转换 JSON 为 SRS
+      - name: Convert JSON to SRS
+        run: |
+          ./sing-box run -c rules.json
+          mv rules.srs ./rules.srs
+
+      # Step 4: 提交 SRS 文件
+      - name: Commit and push SRS file
+        run: |
+          git config --global user.name "Your GitHub Username"
+          git config --global user.email "Your Email Address"
+          git add rules.srs
+          git commit -m "Auto-converted SRS from rules.json"
+          git push
