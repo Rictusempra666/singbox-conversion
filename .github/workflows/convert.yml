@@ -1,4 +1,4 @@
-name: Convert JSON Files to SRS
+name: Convert JSON to SRS
 
 on:
   push:
@@ -12,11 +12,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: 检出当前仓库
+      # Step 1: 检出仓库代码
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Step 2: 下载 SingBox 内核
+      # Step 2: 下载 SingBox
       - name: Download SingBox
         run: |
           curl -L -o sing-box.tar.gz https://github.com/SagerNet/sing-box/releases/download/v1.10.3/sing-box-1.10.3-linux-amd64.tar.gz
@@ -24,21 +24,16 @@ jobs:
           mv sing-box-1.10.3-linux-amd64/sing-box ./
           chmod +x sing-box
 
-      # Step 3: 检测 JSON 文件改动并转换
-      - name: Convert Modified JSON Files to SRS
+      # Step 3: 转换 JSON 文件
+      - name: Convert JSON Files to SRS
         run: |
-          json_files=$(git diff --name-only HEAD~1 HEAD | grep '\.json$' || echo "")
-          if [ -z "$json_files" ]; then
-            echo "No JSON files to convert."
-            exit 0
-          fi
-          for json_file in $json_files; do
+          for json_file in *.json; do
             echo "Converting $json_file..."
             ./sing-box json2src -c "$json_file" -o "${json_file%.json}.srs"
           done
 
-      # Step 4: 提交并推送 SRS 文件
-      - name: Commit and Push SRS Files
+      # Step 4: 提交生成的 SRS 文件
+      - name: Commit and Push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
