@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - '*.json' # 检测 JSON 文件的变化
+      - '**/*.json'
 
 jobs:
   convert-json:
@@ -19,8 +19,8 @@ jobs:
       # Step 2: 设置 Git 用户信息
       - name: Set up Git user
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "Rictusempra666"
+          git config --global user.email "tcmickeyzhou@gmail.com"
 
       # Step 3: 安装 sing-box
       - name: Install sing-box
@@ -31,14 +31,21 @@ jobs:
           sudo mv sing-box-1.10.0-alpha.29-linux-amd64/sing-box /usr/local/bin/sing-box
           sing-box version
 
-      # Step 4: 转换所有 JSON 文件为 SRS 文件
-      - name: Convert JSON Files to SRS
+      # Step 4: 删除旧的 SRS 文件
+      - name: Remove old SRS files
         run: |
-          # 删除旧的 .srs 文件，避免冲突
+          echo "Removing old .srs files..."
           find . -type f -name "*.srs" -exec rm -f {} \;
 
-          # 转换 JSON 文件
-          for json_file in *.json; do
+      # Step 5: 转换 JSON 文件为 SRS 文件
+      - name: Convert JSON Files to SRS
+        run: |
+          json_files=$(find . -type f -name "*.json")
+          if [ -z "$json_files" ]; then
+            echo "No JSON files to convert."
+            exit 0
+          fi
+          for json_file in $json_files; do
             echo "Converting $json_file..."
             if ! sing-box rule-set compile "$json_file"; then
               echo "Error compiling $json_file"
@@ -46,7 +53,7 @@ jobs:
             fi
           done
 
-      # Step 5: 提交生成的 SRS 文件
+      # Step 6: 提交生成的 SRS 文件
       - name: Commit and Push SRS Files
         run: |
           git add .
