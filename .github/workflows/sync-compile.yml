@@ -30,16 +30,20 @@ jobs:
           chmod +x sing-box-1.10.0-alpha.29-linux-amd64/sing-box
           sudo mv sing-box-1.10.0-alpha.29-linux-amd64/sing-box /usr/local/bin/sing-box
 
-      # Step 4: 转换 JSON 文件为 SRS 文件
+      # Step 4: 验证 sing-box 安装
+      - name: Verify Sing-box Installation
+        run: sing-box version
+
+      # Step 5: 转换 JSON 文件为 SRS 文件
       - name: Convert JSON Files to SRS
         run: |
           json_files=$(find . -type f -name "*.json")
           for json_file in $json_files; do
             output_file="${json_file%.json}.srs"
-            ./sing-box rule-set compile --output "$output_file" "$json_file"
+            sing-box rule-set compile --output "$output_file" "$json_file"
           done
 
-      # Step 5: 提交生成的 SRS 文件
+      # Step 6: 提交生成的 SRS 文件
       - name: Commit and Push SRS Files
         run: |
           git add .
