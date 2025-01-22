@@ -37,7 +37,7 @@ jobs:
           echo "Removing old .srs files..."
           find . -type f -name "*.srs" -exec rm -f {} \;
 
-      # Step 5: 转换单条规则文件
+      # Step 5: 转换 JSON 文件为 SRS 文件
       - name: Convert JSON Files to SRS
         run: |
           json_files=$(find . -type f -name "*.json")
@@ -48,7 +48,7 @@ jobs:
           for json_file in $json_files; do
             output_file="${json_file%.json}.srs"
             echo "Converting $json_file to $output_file..."
-            if ! sing-box rule-set compile -o "$output_file" "$json_file"; then
+            if ! sing-box rule-set compile --output "$output_file" "$json_file"; then
               echo "Error compiling $json_file"
               exit 1
             fi
