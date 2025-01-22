@@ -19,8 +19,8 @@ jobs:
       # Step 2: 设置 Git 用户信息
       - name: Set up Git user
         run: |
-          git config --global user.name "Rictusempra666"
-          git config --global user.email "tcmickeyzhou@gmail.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       # Step 3: 安装 sing-box
       - name: Install sing-box
