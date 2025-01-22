@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - '*.json'  # 检测所有 JSON 文件的变化
+      - '*.json' # 检测 JSON 文件的变化
 
 jobs:
   convert-json:
@@ -13,31 +13,45 @@ jobs:
 
     steps:
       # Step 1: 检出当前仓库
-      - name: Checkout Repository
+      - name: Checkout the repository
         uses: actions/checkout@v3
 
-      # Step 2: 下载 SingBox 内核
-      - name: Download SingBox
+      # Step 2: 设置 Git 用户信息
+      - name: Set up Git user
         run: |
-          curl -L -o sing-box.tar.gz https://github.com/SagerNet/sing-box/releases/download/v1.10.3/sing-box-1.10.3-linux-amd64.tar.gz
-          tar -xzf sing-box.tar.gz
-          chmod +x sing-box
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      # Step 3: 遍历并转换所有 JSON 文件
+      # Step 3: 安装 sing-box
+      - name: Install sing-box
+        run: |
+          curl -Lo sing-box.tar.gz https://github.com/SagerNet/sing-box/releases/download/v1.10.0-alpha.29/sing-box-1.10.0-alpha.29-linux-amd64.tar.gz
+          tar -xzf sing-box.tar.gz
+          chmod +x sing-box-1.10.0-alpha.29-linux-amd64/sing-box
+          sudo mv sing-box-1.10.0-alpha.29-linux-amd64/sing-box /usr/local/bin/sing-box
+          sing-box version
+
+      # Step 4: 转换所有 JSON 文件为 SRS 文件
       - name: Convert JSON Files to SRS
         run: |
+          # 删除旧的 .srs 文件，避免冲突
+          find . -type f -name "*.srs" -exec rm -f {} \;
+
+          # 转换 JSON 文件
           for json_file in *.json; do
             echo "Converting $json_file..."
-            srs_file="${json_file%.json}.srs"
-            ./sing-box run -c "$json_file" || exit 1
-            mv rules.srs "$srs_file"
+            if ! sing-box rule-set compile "$json_file"; then
+              echo "Error compiling $json_file"
+              exit 1
+            fi
           done
 
-      # Step 4: 提交生成的 SRS 文件
+      # Step 5: 提交生成的 SRS 文件
       - name: Commit and Push SRS Files
         run: |
-          git config --global user.name "Rictusempra666"
-          git config --global user.email "tcmickeyzhou@gmail.com"
-          git add *.srs
-          git commit -m "Auto-converted SRS files from JSON"
-          git push
+          git add .
+          if git diff-index --quiet HEAD --; then
+            echo "No changes to commit"
+          else
+            git commit -m "Auto-converted SRS files from JSON"
+            git push
