@@ -34,7 +34,19 @@ jobs:
       - name: Verify Sing-box Installation
         run: sing-box version
 
-      # Step 5: 转换 JSON 文件为 SRS 文件
+      # Step 5: 删除无效的 SRS 文件
+      - name: Remove old SRS files
+        run: |
+          json_files=$(find . -type f -name "*.json")
+          for json_file in $json_files; do
+            output_file="${json_file%.json}.srs"
+            if [ -f "$output_file" ]; then
+              rm -f "$output_file"
+              echo "Removed old $output_file"
+            fi
+          done
+
+      # Step 6: 转换 JSON 文件为 SRS 文件
       - name: Convert JSON Files to SRS
         run: |
           json_files=$(find . -type f -name "*.json")
@@ -43,7 +55,7 @@ jobs:
             sing-box rule-set compile --output "$output_file" "$json_file"
           done
 
-      # Step 6: 提交生成的 SRS 文件
+      # Step 7: 提交生成的 SRS 文件
       - name: Commit and Push SRS Files
         run: |
           git add .
