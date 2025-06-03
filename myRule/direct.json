@@ -2,15 +2,17 @@
   "version": 1,
   "rules": [
     {
-      "ip_cidr": [
-      "31.23.47.0/24",
-      "31.23.40.0/24"
-    ],
       "domain_suffix": [
         "cra.myds.me",
         "klei.com",
         "kleientertainment.com",
         "ptexj.com"
+      ]
+    },
+     {
+      "ip_cidr": [
+        "31.23.47.0/24",
+        "31.23.40.0/24"
       ]
     },
     {
