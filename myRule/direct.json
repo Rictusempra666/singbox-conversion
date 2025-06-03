@@ -2,6 +2,7 @@
   "version": 1,
   "rules": [
     {
+      "type": "domain",
       "domain_suffix": [
         "cra.myds.me",
         "klei.com",
@@ -10,12 +11,14 @@
       ]
     },
      {
+      "type": "ip",
       "ip_cidr": [
         "31.23.47.0/24",
         "31.23.40.0/24"
       ]
     },
     {
+      "type": "ip",
       "source_ip_cidr": [
         "192.168.1.12/32"
       ]
