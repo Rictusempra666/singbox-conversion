@@ -2,7 +2,6 @@
   "version": 1,
   "rules": [
     {
-      "type": "domain",
       "domain_suffix": [
         "cra.myds.me",
         "klei.com",
